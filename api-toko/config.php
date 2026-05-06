@@ -4,8 +4,7 @@
  * Handles automatic switching between Local (Laragon) and Production (InfinityFree)
  */
 
-$is_localhost = ($_SERVER['HTTP_HOST'] === 'localhost' || $_SERVER['REMOTE_ADDR'] === '127.0.0.1');
-$is_production = ($_SERVER['HTTP_HOST'] === 'stockpro.42web.io');
+$is_localhost = ($_SERVER['HTTP_HOST'] === 'localhost' || $_SERVER['REMOTE_ADDR'] === '127.0.0.1' || strpos($_SERVER['HTTP_HOST'], 'localhost') !== false);
 
 if ($is_localhost) {
     // Laragon Settings
@@ -13,12 +12,12 @@ if ($is_localhost) {
     define('DB_NAME', 'toko_db');
     define('DB_USER', 'root');
     define('DB_PASS', '');
-} else if ($is_production) {
-    // InfinityFree Settings (Update these with your actual credentials from vPanel)
-    define('DB_HOST', 'sqlxxx.epizy.com'); // Replace with your MySQL Host
-    define('DB_NAME', 'epiz_xxx_toko_db'); // Replace with your Database Name
-    define('DB_USER', 'epiz_xxx');         // Replace with your Database Username
-    define('DB_PASS', 'your_password');    // Replace with your Database Password
+} else {
+    // InfinityFree Settings
+    define('DB_HOST', 'sql200.infinityfree.com'); 
+    define('DB_NAME', 'if0_41845541_toko_db'); 
+    define('DB_USER', 'if0_41845541');         
+    define('DB_PASS', 'echf4wFpBumXVu');    
 }
 
 define('DB_CHARSET', 'utf8mb4');

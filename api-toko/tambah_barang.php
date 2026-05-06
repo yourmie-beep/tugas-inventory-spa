@@ -33,7 +33,7 @@ try {
     ]);
 
 } catch (Exception $e) {
-    http_response_code(400);
+    http_response_code(500); // Changed from 400 to 500 to prevent InfinityFree from blocking the JSON response
     echo json_encode([
         'status' => 'error',
         'message' => $e->getMessage()
