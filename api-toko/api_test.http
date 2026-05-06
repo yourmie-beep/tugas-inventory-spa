@@ -1,0 +1,22 @@
+### Test Get All Barang
+GET http://localhost/api-toko/api.php
+
+### Test Tambah Barang (Success)
+POST http://localhost/api-toko/tambah_barang.php
+Content-Type: application/json
+
+{
+    "nama": "iPhone 15 Pro",
+    "harga": 18000000,
+    "stok": 5,
+    "deskripsi": "Titanium design, A17 Pro chip."
+}
+
+### Test Tambah Barang (Error - Missing Data)
+POST http://localhost/api-toko/tambah_barang.php
+Content-Type: application/json
+
+{
+    "nama": "Missing Data",
+    "harga": 1000
+}

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StockPro | Premium Inventory Manager</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#6366f1">
+    <meta name="description" content="Manage your store inventory with elegance and speed.">
+</head>
+<body>
+    <div class="background-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <main class="container">
+        <header class="header">
+            <div class="logo-area">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 7L12 3L4 7M20 7L12 11M20 7V17L12 21M12 11L4 7M12 11V21M4 7V17L12 21" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <h1>Stock<span>Pro</span></h1>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-primary" id="refreshBtn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18">
+                        <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Refresh Data
+                </button>
+            </div>
+        </header>
+
+        <section class="inventory-card">
+            <div class="card-header">
+                <h2>Kelola Inventaris</h2>
+                <div class="badge" id="itemCount">0 Items</div>
+            </div>
+
+            <div class="form-section">
+                <form id="addBarangForm" class="add-form">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="nama">Nama Barang</label>
+                            <input type="text" id="nama" name="nama" placeholder="Contoh: MacBook Air M2" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="harga">Harga (IDR)</label>
+                            <input type="number" id="harga" name="harga" placeholder="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="stok">Stok</label>
+                            <input type="number" id="stok" name="stok" placeholder="0" required>
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-top: 1rem;">
+                        <label for="deskripsi">Deskripsi</label>
+                        <textarea id="deskripsi" name="deskripsi" placeholder="Detail singkat barang..."></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18">
+                                <path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Simpan Barang
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="table-container">
+                <table id="barangTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nama Barang</th>
+                            <th>Harga</th>
+                            <th>Stok</th>
+                            <th>Deskripsi</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="barangBody">
+                        <!-- Dynamic content will be injected here -->
+                    </tbody>
+                </table>
+                
+                <div id="loader" class="loader-container">
+                    <div class="spinner"></div>
+                    <p>Fetching latest inventory...</p>
+                </div>
+
+                <div id="errorMessage" class="error-container hidden">
+                    <p>Failed to connect to server. Please ensure MySQL is running.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
