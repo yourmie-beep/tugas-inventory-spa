@@ -31,8 +31,12 @@ try {
     $stmt = $pdo->query("SELECT * FROM barang ORDER BY id DESC");
     $barang = $stmt->fetchAll();
 
+    global $is_localhost;
+    $server_env = $is_localhost ? 'Laragon (Local)' : 'InfinityFree';
+
     echo json_encode([
         'status' => 'success',
+        'server' => $server_env,
         'data' => $barang
     ]);
 

@@ -18,6 +18,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const result = await response.json();
 
             if (result.status === 'success') {
+                const serverStatusEl = document.getElementById('serverStatus');
+                if (serverStatusEl && result.server) {
+                    serverStatusEl.innerHTML = `🟢 Server: <strong>${result.server}</strong>`;
+                }
                 renderData(result.data);
             } else {
                 throw new Error(result.message);
@@ -34,12 +38,20 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderData(data) {
         itemCount.textContent = `${data.length} Items`;
         
+        let totalStock = 0;
+        let totalPrice = 0;
+
         if (data.length === 0) {
+            document.getElementById('avgStock').textContent = `Avg Stok: 0`;
+            document.getElementById('avgPrice').textContent = `Avg Harga: Rp 0`;
             barangBody.innerHTML = '<tr><td colspan="6" style="text-align:center">No data found</td></tr>';
             return;
         }
 
         data.forEach(item => {
+            totalStock += parseInt(item.stok) || 0;
+            totalPrice += parseFloat(item.harga) || 0;
+
             const tr = document.createElement('tr');
             
             // Format Price
@@ -70,6 +82,19 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             barangBody.appendChild(tr);
         });
+
+        // Update Averages
+        const avgStock = Math.round(totalStock / data.length);
+        const avgPrice = totalPrice / data.length;
+        
+        const avgPriceFormatted = new Intl.NumberFormat('id-ID', {
+            style: 'currency',
+            currency: 'IDR',
+            minimumFractionDigits: 0
+        }).format(avgPrice);
+
+        document.getElementById('avgStock').textContent = `Avg Stok: ${avgStock}`;
+        document.getElementById('avgPrice').textContent = `Avg Harga: ${avgPriceFormatted}`;
     }
 
     // Service Worker Registration
