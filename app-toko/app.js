@@ -120,6 +120,11 @@ document.addEventListener('DOMContentLoaded', () => {
             stok: formData.get('stok'),
             deskripsi: formData.get('deskripsi')
         };
+        const id = formData.get('id');
+
+        if (id) {
+            data.id = id;
+        }
 
         const submitBtn = addBarangForm.querySelector('button[type="submit"]');
         const originalBtnText = submitBtn.innerHTML;
@@ -129,8 +134,11 @@ document.addEventListener('DOMContentLoaded', () => {
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<div class="spinner" style="width:18px;height:18px;border-width:2px;margin:0"></div>';
 
-            const response = await fetch('../api-toko/tambah_barang.php', {
-                method: 'POST',
+            const url = id ? '../api-toko/edit_barang.php' : '../api-toko/tambah_barang.php';
+            const method = id ? 'PUT' : 'POST';
+
+            const response = await fetch(url, {
+                method: method,
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
             });
@@ -146,6 +154,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 // SUCCESS!
                 alert('✨ ' + result.message);
                 addBarangForm.reset();
+                document.getElementById('barangId').value = '';
+                
+                submitBtn.innerHTML = `
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18">
+                                <path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Simpan Barang
+                        `;
                 
                 // Refresh table without full page reload
                 await fetchBarang();
@@ -156,9 +172,9 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error('Submit Error:', error);
             alert('❌ Oops! ' + error.message);
+            submitBtn.innerHTML = originalBtnText;
         } finally {
             submitBtn.disabled = false;
-            submitBtn.innerHTML = originalBtnText;
         }
     });
 
@@ -169,13 +185,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Global functions for Edit and Delete
     window.editBarang = function(id, nama, harga, stok, deskripsi) {
+        document.getElementById('barangId').value = id;
         document.getElementById('nama').value = nama;
         document.getElementById('harga').value = harga;
         document.getElementById('stok').value = stok;
         document.getElementById('deskripsi').value = deskripsi;
 
-        // Note: Currently we don't have an update API, so the user has requested just moving
-        // the text from the table back to the Input Form as an optional challenge.
+        const submitBtn = document.querySelector('#addBarangForm button[type="submit"]');
+        submitBtn.innerHTML = `
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18">
+                <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Update Barang
+        `;
+
         document.getElementById('addBarangForm').scrollIntoView({ behavior: 'smooth', block: 'center' });
     };
 
