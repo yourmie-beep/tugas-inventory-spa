@@ -7,6 +7,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const addBarangForm = document.getElementById('addBarangForm');
 
+    // Dynamic API Base URL to support both local development and production hosting
+    const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname.includes('localhost')
+        ? '../api-toko'
+        : window.location.protocol + '//stockpro.42web.io/api-toko';
+
     async function fetchBarang() {
         // Reset UI
         barangBody.innerHTML = '';
@@ -14,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
         errorMessage.classList.add('hidden');
 
         try {
-            const response = await fetch('../api-toko/api.php');
+            const response = await fetch(`${API_BASE}/api.php`);
             const result = await response.json();
 
             if (result.status === 'success') {
@@ -134,7 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<div class="spinner" style="width:18px;height:18px;border-width:2px;margin:0"></div>';
 
-            const url = id ? '../api-toko/edit_barang.php' : '../api-toko/tambah_barang.php';
+            const url = id ? `${API_BASE}/edit_barang.php` : `${API_BASE}/tambah_barang.php`;
             const method = id ? 'PUT' : 'POST';
 
             const response = await fetch(url, {
@@ -208,7 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            const response = await fetch(`../api-toko/hapus_barang.php?id=${id}`, {
+            const response = await fetch(`${API_BASE}/hapus_barang.php?id=${id}`, {
                 method: 'DELETE'
             });
 
