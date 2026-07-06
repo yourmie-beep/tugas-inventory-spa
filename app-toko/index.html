@@ -30,6 +30,12 @@
                 <h1>Stock<span>Pro</span></h1>
             </div>
             <div class="header-actions">
+                <button class="btn btn-secondary" id="cetakBtn" style="margin-right: 0.5rem;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                        <path d="M6 9V2h12v7M6 18H4a2 2 0 0 0-2 2v3h20v-3a2 2 0 0 0-2-2h-2M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2m-10 0v4h8v-4" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Cetak Laporan
+                </button>
                 <button class="btn btn-primary" id="refreshBtn">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18">
                         <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round"/>
@@ -38,6 +44,25 @@
                 </button>
             </div>
         </header>
+
+        <!-- Visual Dashboard Card -->
+        <section class="inventory-card dashboard-card" style="margin-bottom: 2rem;">
+            <div class="card-header">
+                <h2>Visualisasi Nilai Gudang</h2>
+                <div class="chart-controls">
+                    <label for="chartTypeSelect" class="chart-label">Tipe Grafik:</label>
+                    <select id="chartTypeSelect" class="chart-select">
+                        <option value="doughnut">Doughnut (Modern)</option>
+                        <option value="pie">Pie Chart (Lingkaran)</option>
+                        <option value="bar">Bar Chart (Batang)</option>
+                        <option value="line">Line Chart (Garis)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="chart-wrapper">
+                <canvas id="dashboardChart"></canvas>
+            </div>
+        </section>
 
         <section class="inventory-card">
             <div class="card-header">
@@ -66,6 +91,10 @@
                             <label for="stok">Stok</label>
                             <input type="number" id="stok" name="stok" placeholder="0" required>
                         </div>
+                        <div class="form-group">
+                            <label for="gambar">Foto Barang</label>
+                            <input type="file" id="gambar" name="gambar" accept="image/*">
+                        </div>
                     </div>
                     <div class="form-group" style="margin-top: 1rem;">
                         <label for="deskripsi">Deskripsi</label>
@@ -82,11 +111,23 @@
                 </form>
             </div>
             
+            <div class="table-header-row">
+                <h3>Daftar Barang</h3>
+                <div class="search-wrapper">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="search-icon" width="18" height="18">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input type="text" id="searchInput" placeholder="Cari barang berdasarkan nama / deskripsi...">
+                </div>
+            </div>
+            
             <div class="table-container">
                 <table id="barangTable">
                     <thead>
                         <tr>
                             <th>ID</th>
+                            <th>Gambar</th>
                             <th>Nama Barang</th>
                             <th>Harga</th>
                             <th>Stok</th>
@@ -109,9 +150,27 @@
                     <p>Failed to connect to server. Please ensure MySQL is running.</p>
                 </div>
             </div>
+
+            <!-- Pagination Wrapper -->
+            <div class="pagination-wrapper">
+                <button class="btn btn-secondary btn-pagination" id="prevPageBtn" disabled>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                        <path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Sebelumnya
+                </button>
+                <span class="page-indicator" id="pageInfo">Halaman 1 dari 1</span>
+                <button class="btn btn-secondary btn-pagination" id="nextPageBtn" disabled>
+                    Selanjutnya
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                        <path d="M9 18l6-6-6-6" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
         </section>
     </main>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="app.js?v=5"></script>
 </body>
 </html>

@@ -13,8 +13,16 @@ try {
         nama VARCHAR(255) NOT NULL,
         harga DECIMAL(10,2) NOT NULL,
         stok INT NOT NULL,
-        deskripsi TEXT
+        deskripsi TEXT,
+        gambar VARCHAR(255) DEFAULT NULL
     )");
+
+    // Migration: add column if database table was created in a previous session
+    try {
+        $pdo->exec("ALTER TABLE barang ADD COLUMN gambar VARCHAR(255) DEFAULT NULL");
+    } catch (PDOException $e) {
+        // Column may already exist, ignore error
+    }
 
     // Check if empty, insert dummy data
     $stmt = $pdo->query("SELECT COUNT(*) FROM barang");

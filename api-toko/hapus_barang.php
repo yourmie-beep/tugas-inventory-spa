@@ -30,11 +30,19 @@ if (!$id) {
 try {
     $pdo = get_pdo_connection();
     
+    // Get existing image path to delete the file
+    $stmt_old = $pdo->prepare("SELECT gambar FROM barang WHERE id = ?");
+    $stmt_old->execute([$id]);
+    $old_gambar = $stmt_old->fetchColumn();
+
     $stmt = $pdo->prepare("DELETE FROM barang WHERE id = :id");
     $stmt->bindParam(':id', $id);
     
     if ($stmt->execute()) {
         if ($stmt->rowCount() > 0) {
+            if ($old_gambar && file_exists(__DIR__ . '/' . $old_gambar)) {
+                @unlink(__DIR__ . '/' . $old_gambar);
+            }
             echo json_encode(['status' => 'success', 'message' => 'Barang berhasil dihapus']);
         } else {
             http_response_code(404);

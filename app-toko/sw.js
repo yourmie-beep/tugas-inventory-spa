@@ -1,4 +1,4 @@
-const CACHE_NAME = 'stockpro-v5';
+const CACHE_NAME = 'stockpro-v6';
 const ASSETS = [
   './',
   './index.html',

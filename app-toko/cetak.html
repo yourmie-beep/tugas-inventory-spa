@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laporan Inventaris Barang - StockPro</title>
+    <style>
+        /* A4 Monochrome Print Design Styles */
+        @page {
+            size: A4;
+            margin: 20mm 15mm 20mm 15mm;
+        }
+        
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            color: #000;
+            background-color: #fff;
+            margin: 0;
+            padding: 0;
+            font-size: 11pt;
+            line-height: 1.4;
+        }
+
+        /* Letterhead / Kop Surat */
+        .kop-surat {
+            border-bottom: 3px double #000;
+            padding-bottom: 10px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+        }
+
+        .kop-logo {
+            width: 60px;
+            height: 60px;
+            border: 2px solid #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 20pt;
+            margin-right: 20px;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .kop-text {
+            flex-grow: 1;
+        }
+
+        .kop-title {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 18pt;
+            font-weight: bold;
+            letter-spacing: 1px;
+            margin: 0 0 5px 0;
+            text-transform: uppercase;
+        }
+
+        .kop-subtitle {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 10pt;
+            margin: 0;
+            color: #333;
+        }
+
+        /* Document Title */
+        .doc-title {
+            text-align: center;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 14pt;
+            font-weight: bold;
+            text-decoration: underline;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        /* Metadata */
+        .metadata-section {
+            width: 100%;
+            margin-bottom: 20px;
+            font-size: 10pt;
+        }
+
+        .metadata-table {
+            width: 100%;
+            border: none;
+        }
+
+        .metadata-table td {
+            border: none;
+            padding: 2px 0;
+        }
+
+        .metadata-label {
+            width: 120px;
+        }
+
+        /* Main Table Style */
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+
+        .report-table th, .report-table td {
+            border: 1px solid #000;
+            padding: 8px 10px;
+            text-align: left;
+        }
+
+        .report-table th {
+            background-color: #f2f2f2;
+            font-family: Arial, Helvetica, sans-serif;
+            font-weight: bold;
+            font-size: 10pt;
+            text-transform: uppercase;
+            text-align: center;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .font-bold {
+            font-weight: bold;
+        }
+
+        /* Aggregate Summary */
+        .summary-box {
+            margin-top: 20px;
+            width: 100%;
+            page-break-inside: avoid;
+        }
+
+        /* Signature / Tanda Tangan */
+        .signature-section {
+            margin-top: 50px;
+            width: 100%;
+            display: flex;
+            justify-content: flex-end;
+            page-break-inside: avoid;
+        }
+
+        .signature-container {
+            width: 200px;
+            text-align: center;
+        }
+
+        .signature-space {
+            height: 75px;
+        }
+
+        /* Loading Screen overlay */
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            font-family: Arial, sans-serif;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #ccc;
+            border-top: 3px solid #000;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media print {
+            #loading-screen {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loading-screen">
+        <div class="spinner"></div>
+        <p>Menyiapkan Laporan Formal...</p>
+    </div>
+
+    <!-- Kop Surat -->
+    <div class="kop-surat">
+        <div class="kop-logo">SP</div>
+        <div class="kop-text">
+            <h1 class="kop-title">StockPro Inventory</h1>
+            <p class="kop-subtitle">Sistem Manajemen Logistik dan Inventaris Gudang Utama</p>
+            <p class="kop-subtitle" style="font-style: italic;">Jl. Teknokrat No. 42, Kota Bandung, Jawa Barat | Telp: (022) 555-0192 | Email: admin@stockpro.com</p>
+        </div>
+    </div>
+
+    <!-- Title -->
+    <div class="doc-title">Laporan Inventaris Fisik Barang</div>
+
+    <!-- Metadata -->
+    <div class="metadata-section">
+        <table class="metadata-table">
+            <tr>
+                <td class="metadata-label">Tanggal Cetak</td>
+                <td>: <span id="print-date"></span></td>
+                <td style="text-align: right;">Klasifikasi: <strong>Internal Gudang</strong></td>
+            </tr>
+            <tr>
+                <td class="metadata-label">Token Keamanan</td>
+                <td>: <span id="token-display" style="font-family: monospace; font-size: 9pt;"></span></td>
+                <td></td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Table -->
+    <table class="report-table">
+        <thead>
+            <tr>
+                <th style="width: 5%;">No</th>
+                <th style="width: 8%;">ID</th>
+                <th style="width: 30%;">Nama Barang</th>
+                <th style="width: 17%;">Harga Satuan</th>
+                <th style="width: 10%;">Stok</th>
+                <th style="width: 17%;">Total Nilai</th>
+                <th style="width: 23%;">Deskripsi</th>
+            </tr>
+        </thead>
+        <tbody id="report-body">
+            <!-- Rows dynamically loaded -->
+        </tbody>
+        <tfoot>
+            <tr class="font-bold" style="background-color: #f9f9f9;">
+                <td colspan="3" class="text-right">TOTAL KESELURUHAN</td>
+                <td class="text-center">-</td>
+                <td id="total-stok" class="text-center">0</td>
+                <td id="total-harga-aset" class="text-right">Rp 0</td>
+                <td><span id="total-items">0</span> Jenis Barang</td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <!-- Signature -->
+    <div class="signature-section">
+        <div class="signature-container">
+            <p>Disetujui Oleh,</p>
+            <p class="font-bold">Manajer Operasional</p>
+            <div class="signature-space"></div>
+            <p class="font-bold">( _______________________ )</p>
+            <p style="font-size: 9pt; color: #555;">NIP: 19940823 202607 1 004</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Display Current Date
+            const today = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+            document.getElementById('print-date').textContent = today.toLocaleDateString('id-ID', options);
+
+            // Get API Base
+            const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname.includes('localhost')
+                ? '../api-toko'
+                : window.location.protocol + '//stockpro.42web.io/api-toko';
+
+            // Get Token from URL Parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('token') || '';
+            document.getElementById('token-display').textContent = token ? `${token.substring(0, 8)}...` : 'NONE';
+
+            if (!token) {
+                alert('Akses Ditolak: Token keamanan tidak ditemukan.');
+                window.close();
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/cetak_laporan.php?token=${token}`);
+                if (!response.ok) {
+                    const errResult = await response.json();
+                    throw new Error(errResult.message || 'Gagal memverifikasi token');
+                }
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    renderReport(result.data, result.agregat);
+                    
+                    // Remove loading overlay
+                    document.getElementById('loading-screen').style.display = 'none';
+
+                    // Trigger Print & Close
+                    setTimeout(() => {
+                        window.print();
+                        window.close();
+                    }, 800);
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch (error) {
+                alert('Terjadi Kesalahan: ' + error.message);
+                window.close();
+            }
+        });
+
+        function renderReport(data, aggregates) {
+            const body = document.getElementById('report-body');
+            body.innerHTML = '';
+
+            const currencyFormatter = new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0
+            });
+
+            data.forEach((item, index) => {
+                const tr = document.createElement('tr');
+                
+                const hargaNum = parseFloat(item.harga) || 0;
+                const stokNum = parseInt(item.stok) || 0;
+                const totalItemAsset = hargaNum * stokNum;
+
+                tr.innerHTML = `
+                    <td class="text-center">${index + 1}</td>
+                    <td class="text-center">#${item.id}</td>
+                    <td>${item.nama}</td>
+                    <td class="text-right">${currencyFormatter.format(hargaNum)}</td>
+                    <td class="text-center">${stokNum}</td>
+                    <td class="text-right">${currencyFormatter.format(totalItemAsset)}</td>
+                    <td style="font-size: 9pt;">${item.deskripsi || '-'}</td>
+                `;
+                body.appendChild(tr);
+            });
+
+            // Update aggregates
+            document.getElementById('total-stok').textContent = aggregates.total_stok;
+            document.getElementById('total-harga-aset').textContent = currencyFormatter.format(aggregates.total_harga_aset);
+            document.getElementById('total-items').textContent = aggregates.total_items;
+        }
+    </script>
+</body>
+</html>
