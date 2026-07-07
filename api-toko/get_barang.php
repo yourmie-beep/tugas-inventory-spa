@@ -24,6 +24,13 @@ try {
         gambar VARCHAR(255) DEFAULT NULL
     )");
 
+    // Migration: add column if database table was created in a previous session
+    try {
+        $pdo->exec("ALTER TABLE barang ADD COLUMN gambar VARCHAR(255) DEFAULT NULL");
+    } catch (PDOException $e) {
+        // Column may already exist, ignore error
+    }
+
     // Search query
     $search = isset($_GET['cari']) ? trim($_GET['cari']) : '';
     

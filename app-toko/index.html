@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>StockPro | Premium Inventory Manager</title>
+    <!-- Auth Guard: Redirect early if no token to avoid content flash -->
+    <script>
+        if (!localStorage.getItem('pwa_token')) {
+            window.location.replace('login.php');
+        }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
@@ -41,6 +47,12 @@
                         <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                     Refresh Data
+                </button>
+                <button class="btn btn-secondary" id="logoutBtn" style="margin-left: 0.5rem; border-color: rgba(239, 68, 68, 0.3); color: #f87171;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Logout
                 </button>
             </div>
         </header>

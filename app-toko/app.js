@@ -1,4 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Auth Guard check
+    const token = localStorage.getItem('pwa_token');
+    if (!token) {
+        window.location.replace('login.php');
+        return;
+    }
+
     const barangBody = document.getElementById('barangBody');
     const loader = document.getElementById('loader');
     const errorMessage = document.getElementById('errorMessage');
@@ -13,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const pageInfo = document.getElementById('pageInfo');
     const cetakBtn = document.getElementById('cetakBtn');
     const chartTypeSelect = document.getElementById('chartTypeSelect');
+    const logoutBtn = document.getElementById('logoutBtn');
 
     // State Variables
     let currentPage = 1;
@@ -291,9 +299,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const url = id ? `${API_BASE}/edit_barang.php` : `${API_BASE}/tambah_barang.php`;
             const method = 'POST'; // Use POST for both to handle FormData uploads natively in PHP
 
+            const headers = {};
+            const token = localStorage.getItem('pwa_token');
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+
             const response = await fetch(url, {
                 method: method,
-                body: formData
+                body: formData,
+                headers: headers
             });
 
             if (!response.ok) {
@@ -366,9 +381,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Cetak Laporan print button event
     cetakBtn.addEventListener('click', () => {
-        const token = 'StockProSecretToken2026';
-        window.open(`cetak.html?token=${token}`, '_blank');
+        const activeToken = localStorage.getItem('pwa_token') || 'StockProSecretToken2026';
+        window.open(`cetak.html?token=${activeToken}`, '_blank');
     });
+
+    // Logout button event
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+            if (confirm('Apakah Anda yakin ingin keluar dari StockPro?')) {
+                localStorage.removeItem('pwa_token');
+                localStorage.removeItem('pwa_user');
+                window.location.replace('login.php');
+            }
+        });
+    }
 
     refreshBtn.addEventListener('click', () => {
         currentPage = 1;
@@ -406,8 +432,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
+            const headers = {};
+            const token = localStorage.getItem('pwa_token');
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+
             const response = await fetch(`${API_BASE}/hapus_barang.php?id=${id}`, {
-                method: 'DELETE'
+                method: 'DELETE',
+                headers: headers
             });
 
             if (!response.ok) {

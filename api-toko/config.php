@@ -31,9 +31,27 @@ function get_pdo_connection() {
     ];
 
     try {
-        // On local, we might need to create the DB first if it doesn't exist
-        // But on InfinityFree, the DB is already created via vPanel
-        return new PDO($dsn, DB_USER, DB_PASS, $options);
+        $pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
+        
+        // Ensure users table exists (Soal 4 requirement)
+        $pdo->exec("CREATE TABLE IF NOT EXISTS users (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            username VARCHAR(255) NOT NULL UNIQUE,
+            password VARCHAR(255) NOT NULL,
+            token VARCHAR(255) DEFAULT NULL
+        )");
+        
+        // Seed users if table is empty
+        $stmt = $pdo->query("SELECT COUNT(*) FROM users");
+        if ($stmt->fetchColumn() == 0) {
+            $admin_hash = password_hash('password', PASSWORD_DEFAULT);
+            $kasir_hash = password_hash('password', PASSWORD_DEFAULT);
+            
+            $insert_stmt = $pdo->prepare("INSERT INTO users (username, password) VALUES (?, ?), (?, ?)");
+            $insert_stmt->execute(['admin', $admin_hash, 'kasir', $kasir_hash]);
+        }
+        
+        return $pdo;
     } catch (PDOException $e) {
         // If connection fails because DB doesn't exist (likely on local), try connecting without dbname
         if ($e->getCode() == 1049) {
@@ -41,9 +59,77 @@ function get_pdo_connection() {
             $temp_pdo = new PDO($dsn_no_db, DB_USER, DB_PASS, $options);
             $temp_pdo->exec("CREATE DATABASE IF NOT EXISTS " . DB_NAME);
             $temp_pdo->exec("USE " . DB_NAME);
+            
+            // Create and seed tables in freshly created DB
+            $temp_pdo->exec("CREATE TABLE IF NOT EXISTS users (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                username VARCHAR(255) NOT NULL UNIQUE,
+                password VARCHAR(255) NOT NULL,
+                token VARCHAR(255) DEFAULT NULL
+            )");
+            
+            $admin_hash = password_hash('password', PASSWORD_DEFAULT);
+            $kasir_hash = password_hash('password', PASSWORD_DEFAULT);
+            $insert_stmt = $temp_pdo->prepare("INSERT INTO users (username, password) VALUES (?, ?), (?, ?)");
+            $insert_stmt->execute(['admin', $admin_hash, 'kasir', $kasir_hash]);
+            
             return $temp_pdo;
         }
         throw $e;
     }
+}
+
+/**
+ * Verifies access token from Authorization header or URL parameter.
+ * Rejects request with 'Akses Ditolak!' (Soal 4 requirement) if invalid.
+ */
+function verify_access_token() {
+    $provided_token = '';
+    
+    // Check token in GET parameters (for cetak_laporan.php link)
+    if (isset($_GET['token'])) {
+        $provided_token = $_GET['token'];
+    } else {
+        // Check Authorization header
+        $headers = apache_request_headers();
+        if (isset($headers['Authorization'])) {
+            $provided_token = str_replace('Bearer ', '', $headers['Authorization']);
+        } elseif (isset($_SERVER['HTTP_AUTHORIZATION'])) {
+            $provided_token = str_replace('Bearer ', '', $_SERVER['HTTP_AUTHORIZATION']);
+        }
+    }
+    
+    if (empty($provided_token)) {
+        http_response_code(401);
+        echo json_encode([
+            'status' => 'error',
+            'message' => 'Akses Ditolak!'
+        ]);
+        exit;
+    }
+    
+    // Static token fallback for print logic
+    if ($provided_token === 'StockProSecretToken2026') {
+        return true;
+    }
+    
+    // Verify token against database users
+    try {
+        $pdo = get_pdo_connection();
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM users WHERE token = ? AND token IS NOT NULL AND token != ''");
+        $stmt->execute([$provided_token]);
+        if ($stmt->fetchColumn() > 0) {
+            return true;
+        }
+    } catch (Exception $e) {
+        // Fallback or log error
+    }
+    
+    http_response_code(401);
+    echo json_encode([
+        'status' => 'error',
+        'message' => 'Akses Ditolak!'
+    ]);
+    exit;
 }
 ?>
