@@ -17,23 +17,23 @@ $ftp_server = "ftpupload.net";
 $ftp_user = "if0_41845541";
 $ftp_pass = "echf4wFpBumXVu";
 
+function read_response($socket) {
+    $res = "";
+    while ($line = fgets($socket, 512)) {
+        $res .= $line;
+        if (preg_match('/^[0-9]{3} /', $line)) {
+            break;
+        }
+    }
+    return $res;
+}
+
 function socket_ftp_upload($host, $user, $pass, $local_file, $remote_file) {
     echo "Uploading $local_file -> $remote_file...\n";
     $socket = @fsockopen($host, 21, $errno, $errstr, 15);
     if (!$socket) {
         echo "Error: fsockopen failed: $errstr ($errno)\n";
         return false;
-    }
-    
-    function read_response($socket) {
-        $res = "";
-        while ($line = fgets($socket, 512)) {
-            $res .= $line;
-            if (preg_match('/^[0-9]{3} /', $line)) {
-                break;
-            }
-        }
-        return $res;
     }
     
     $res = read_response($socket);
