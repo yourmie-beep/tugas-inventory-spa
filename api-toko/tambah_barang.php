@@ -22,6 +22,9 @@ try {
     $harga = $_POST['harga'] ?? '';
     $stok = $_POST['stok'] ?? '';
     $deskripsi = $_POST['deskripsi'] ?? '';
+    $kode_qr = isset($_POST['kode_qr']) && $_POST['kode_qr'] !== '' ? $_POST['kode_qr'] : null;
+    $latitude = isset($_POST['latitude']) && $_POST['latitude'] !== '' ? $_POST['latitude'] : null;
+    $longitude = isset($_POST['longitude']) && $_POST['longitude'] !== '' ? $_POST['longitude'] : null;
 
     if (empty($nama) || empty($harga) || $stok === '') {
         throw new Exception('Data tidak lengkap.');
@@ -51,14 +54,17 @@ try {
         }
     }
 
-    $sql = "INSERT INTO barang (nama, harga, stok, deskripsi, gambar) VALUES (?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO barang (nama, harga, stok, deskripsi, gambar, kode_qr, latitude, longitude) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
     $stmt = $pdo->prepare($sql);
     $stmt->execute([
         $nama,
         $harga,
         $stok,
         $deskripsi,
-        $gambar_path
+        $gambar_path,
+        $kode_qr,
+        $latitude,
+        $longitude
     ]);
 
     echo json_encode([

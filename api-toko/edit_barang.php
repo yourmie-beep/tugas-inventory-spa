@@ -29,6 +29,9 @@ try {
     $harga = $_POST['harga'] ?? '';
     $stok = $_POST['stok'] ?? '';
     $deskripsi = $_POST['deskripsi'] ?? '';
+    $kode_qr = isset($_POST['kode_qr']) && $_POST['kode_qr'] !== '' ? $_POST['kode_qr'] : null;
+    $latitude = isset($_POST['latitude']) && $_POST['latitude'] !== '' ? $_POST['latitude'] : null;
+    $longitude = isset($_POST['longitude']) && $_POST['longitude'] !== '' ? $_POST['longitude'] : null;
 
     if (empty($id)) {
         $json = file_get_contents('php://input');
@@ -39,6 +42,9 @@ try {
             $harga = $data['harga'] ?? '';
             $stok = $data['stok'] ?? '';
             $deskripsi = $data['deskripsi'] ?? '';
+            $kode_qr = isset($data['kode_qr']) && $data['kode_qr'] !== '' ? $data['kode_qr'] : null;
+            $latitude = isset($data['latitude']) && $data['latitude'] !== '' ? $data['latitude'] : null;
+            $longitude = isset($data['longitude']) && $data['longitude'] !== '' ? $data['longitude'] : null;
         }
     }
 
@@ -80,7 +86,7 @@ try {
         }
     }
 
-    $sql = "UPDATE barang SET nama = ?, harga = ?, stok = ?, deskripsi = ?, gambar = ? WHERE id = ?";
+    $sql = "UPDATE barang SET nama = ?, harga = ?, stok = ?, deskripsi = ?, gambar = ?, kode_qr = ?, latitude = ?, longitude = ? WHERE id = ?";
     $stmt = $pdo->prepare($sql);
     $stmt->execute([
         $nama,
@@ -88,6 +94,9 @@ try {
         $stok,
         $deskripsi,
         $gambar_path,
+        $kode_qr,
+        $latitude,
+        $longitude,
         $id
     ]);
 

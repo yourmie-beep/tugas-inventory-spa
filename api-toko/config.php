@@ -22,6 +22,54 @@ if ($is_localhost) {
 
 define('DB_CHARSET', 'utf8mb4');
 
+function ensure_tables_and_migrations($pdo) {
+    // Ensure users table exists (Soal 4 requirement)
+    $pdo->exec("CREATE TABLE IF NOT EXISTS users (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        username VARCHAR(255) NOT NULL UNIQUE,
+        password VARCHAR(255) NOT NULL,
+        token VARCHAR(255) DEFAULT NULL
+    )");
+    
+    // Seed users if table is empty
+    $stmt = $pdo->query("SELECT COUNT(*) FROM users");
+    if ($stmt->fetchColumn() == 0) {
+        $admin_hash = password_hash('password', PASSWORD_DEFAULT);
+        $kasir_hash = password_hash('password', PASSWORD_DEFAULT);
+        
+        $insert_stmt = $pdo->prepare("INSERT INTO users (username, password) VALUES (?, ?), (?, ?)");
+        $insert_stmt->execute(['admin', $admin_hash, 'kasir', $kasir_hash]);
+    }
+
+    // Ensure barang table exists
+    $pdo->exec("CREATE TABLE IF NOT EXISTS barang (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        nama VARCHAR(255) NOT NULL,
+        harga DECIMAL(10,2) NOT NULL,
+        stok INT NOT NULL,
+        deskripsi TEXT,
+        gambar VARCHAR(255) DEFAULT NULL,
+        kode_qr VARCHAR(255) DEFAULT NULL,
+        latitude VARCHAR(100) DEFAULT NULL,
+        longitude VARCHAR(100) DEFAULT NULL
+    )");
+
+    // Migrations: add columns if table already existed in a previous session
+    $migrations = [
+        "ALTER TABLE barang ADD COLUMN gambar VARCHAR(255) DEFAULT NULL",
+        "ALTER TABLE barang ADD COLUMN kode_qr VARCHAR(255) DEFAULT NULL",
+        "ALTER TABLE barang ADD COLUMN latitude VARCHAR(100) DEFAULT NULL",
+        "ALTER TABLE barang ADD COLUMN longitude VARCHAR(100) DEFAULT NULL"
+    ];
+    foreach ($migrations as $query) {
+        try {
+            $pdo->exec($query);
+        } catch (PDOException $e) {
+            // Column may already exist, ignore error
+        }
+    }
+}
+
 function get_pdo_connection() {
     $dsn = "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=" . DB_CHARSET;
     $options = [
@@ -32,25 +80,7 @@ function get_pdo_connection() {
 
     try {
         $pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
-        
-        // Ensure users table exists (Soal 4 requirement)
-        $pdo->exec("CREATE TABLE IF NOT EXISTS users (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            username VARCHAR(255) NOT NULL UNIQUE,
-            password VARCHAR(255) NOT NULL,
-            token VARCHAR(255) DEFAULT NULL
-        )");
-        
-        // Seed users if table is empty
-        $stmt = $pdo->query("SELECT COUNT(*) FROM users");
-        if ($stmt->fetchColumn() == 0) {
-            $admin_hash = password_hash('password', PASSWORD_DEFAULT);
-            $kasir_hash = password_hash('password', PASSWORD_DEFAULT);
-            
-            $insert_stmt = $pdo->prepare("INSERT INTO users (username, password) VALUES (?, ?), (?, ?)");
-            $insert_stmt->execute(['admin', $admin_hash, 'kasir', $kasir_hash]);
-        }
-        
+        ensure_tables_and_migrations($pdo);
         return $pdo;
     } catch (PDOException $e) {
         // If connection fails because DB doesn't exist (likely on local), try connecting without dbname
@@ -59,20 +89,7 @@ function get_pdo_connection() {
             $temp_pdo = new PDO($dsn_no_db, DB_USER, DB_PASS, $options);
             $temp_pdo->exec("CREATE DATABASE IF NOT EXISTS " . DB_NAME);
             $temp_pdo->exec("USE " . DB_NAME);
-            
-            // Create and seed tables in freshly created DB
-            $temp_pdo->exec("CREATE TABLE IF NOT EXISTS users (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                username VARCHAR(255) NOT NULL UNIQUE,
-                password VARCHAR(255) NOT NULL,
-                token VARCHAR(255) DEFAULT NULL
-            )");
-            
-            $admin_hash = password_hash('password', PASSWORD_DEFAULT);
-            $kasir_hash = password_hash('password', PASSWORD_DEFAULT);
-            $insert_stmt = $temp_pdo->prepare("INSERT INTO users (username, password) VALUES (?, ?), (?, ?)");
-            $insert_stmt->execute(['admin', $admin_hash, 'kasir', $kasir_hash]);
-            
+            ensure_tables_and_migrations($temp_pdo);
             return $temp_pdo;
         }
         throw $e;

@@ -17,6 +17,8 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#6366f1">
     <meta name="description" content="Manage your store inventory with elegance and speed.">
+    <!-- QR Code Scanning Library -->
+    <script src="https://unpkg.com/html5-qrcode"></script>
 </head>
 <body>
     <div class="background-blobs">
@@ -36,6 +38,15 @@
                 <h1>Stock<span>Pro</span></h1>
             </div>
             <div class="header-actions">
+                <button class="btn btn-primary" id="scanQrGatewayBtn" style="margin-right: 0.5rem; background: linear-gradient(135deg, #6366f1, #a855f7); box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                        <rect x="3" y="3" width="7" height="7" rx="1"/>
+                        <rect x="14" y="3" width="7" height="7" rx="1"/>
+                        <rect x="3" y="14" width="7" height="7" rx="1"/>
+                        <path d="M14 14h2v2h-2zm4 4h2v2h-2zm2-4h2v2h-2zm-6 6h2v2h-2zm4-2h2v2h-2z" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    QR Gateway
+                </button>
                 <button class="btn btn-secondary" id="cetakBtn" style="margin-right: 0.5rem;">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
                         <path d="M6 9V2h12v7M6 18H4a2 2 0 0 0-2 2v3h20v-3a2 2 0 0 0-2-2h-2M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2m-10 0v4h8v-4" stroke-linecap="round" stroke-linejoin="round"/>
@@ -107,6 +118,35 @@
                             <label for="gambar">Foto Barang</label>
                             <input type="file" id="gambar" name="gambar" accept="image/*">
                         </div>
+                        <div class="form-group">
+                            <label for="kode_qr">Kode QR</label>
+                            <div class="input-with-button">
+                                <input type="text" id="kode_qr" name="kode_qr" placeholder="Scan / ketik QR">
+                                <button type="button" class="btn-input-action" id="formScanQrBtn" title="Scan QR Code">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                                        <rect x="3" y="3" width="7" height="7" rx="1"/>
+                                        <rect x="14" y="3" width="7" height="7" rx="1"/>
+                                        <rect x="3" y="14" width="7" height="7" rx="1"/>
+                                        <path d="M14 14h2v2h-2zm4 4h2v2h-2zm2-4h2v2h-2zm-6 6h2v2h-2zm4-2h2v2h-2z" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="gps">Lokasi (GPS)</label>
+                            <div class="input-with-button">
+                                <div style="display: flex; gap: 0.25rem; width: 100%;">
+                                    <input type="text" id="latitude" name="latitude" placeholder="Lat" readonly style="width: 50%; font-size: 0.8rem; padding: 0.75rem 0.5rem;">
+                                    <input type="text" id="longitude" name="longitude" placeholder="Lng" readonly style="width: 50%; font-size: 0.8rem; padding: 0.75rem 0.5rem;">
+                                </div>
+                                <button type="button" class="btn-input-action" id="gpsBtn" onclick="dapatkanLokasi()" title="Dapatkan GPS">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                                        <path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"/>
+                                        <circle cx="12" cy="10" r="3"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                     <div class="form-group" style="margin-top: 1rem;">
                         <label for="deskripsi">Deskripsi</label>
@@ -145,12 +185,12 @@
                             <th>Stok</th>
                             <th>Deskripsi</th>
                             <th>Status</th>
+                            <th>Lokasi</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
                     <tbody id="barangBody">
-                        <!-- Dynamic content will be injected here -->
-                    </tbody>
+                       </tbody>
                 </table>
                 
                 <div id="loader" class="loader-container">
@@ -181,6 +221,67 @@
             </div>
         </section>
     </main>
+
+    <!-- Modal QR Scanner -->
+    <div id="qrModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>QR Gateway Gudang</h3>
+                <button type="button" id="closeQrModalBtn" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- Camera view area -->
+                <div id="qrReaderWrapper">
+                    <div id="qr-reader"></div>
+                </div>
+                
+                <!-- Status Cards -->
+                <div id="qrStatusContainer" class="qr-status-container">
+                    <!-- Status 1: Loading -->
+                    <div id="qrStatusLoading" class="qr-status-card status-loading hidden">
+                        <div class="spinner" style="width: 20px; height: 20px; border-width: 2px;"></div>
+                        <span>Menginisialisasi Kamera / Memindai...</span>
+                    </div>
+                    
+                    <!-- Status 2: Ditemukan (Card Hijau) -->
+                    <div id="qrStatusDitemukan" class="qr-status-card status-found hidden">
+                        <div class="status-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </div>
+                        <div class="status-details">
+                            <h4>Barang Ditemukan!</h4>
+                            <p id="foundBarangNama" style="font-weight: 600; margin-top: 0.25rem; font-size: 1rem; color: #fff;"></p>
+                            <p id="foundBarangStok" style="font-size: 0.85rem; color: #a7f3d0; margin-top: 0.15rem;"></p>
+                            <p id="foundBarangHarga" style="font-size: 0.85rem; color: #a7f3d0; margin-top: 0.15rem;"></p>
+                        </div>
+                    </div>
+                    
+                    <!-- Status 3: Tidak Ditemukan (Card Kuning + Tombol Tambah) -->
+                    <div id="qrStatusNotFound" class="qr-status-card status-not-found hidden">
+                        <div class="status-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
+                                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                                <line x1="12" y1="9" x2="12" y2="13"></line>
+                                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                            </svg>
+                        </div>
+                        <div class="status-details">
+                            <h4>Kode QR Tidak Terdaftar</h4>
+                            <p id="notFoundQrCode" style="font-size: 0.8rem; font-family: monospace; color: #fef08a; word-break: break-all; margin: 0.25rem 0 0.75rem 0;"></p>
+                            <button type="button" id="btnQrTambahBarang" class="btn btn-primary" style="background: var(--warning); border: none; color: #000; padding: 0.5rem 1rem; font-size: 0.8rem; width: 100%; justify-content: center;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                                    <path d="M12 5v14M5 12h14"/>
+                                </svg>
+                                Tambahkan Barang Baru
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="app.js?v=5"></script>

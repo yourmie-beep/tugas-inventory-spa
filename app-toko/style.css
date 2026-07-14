@@ -528,3 +528,247 @@ input[type="file"]::file-selector-button:hover {
     box-shadow: none !important;
 }
 
+/* Input with Action Button inside Form */
+.input-with-button {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    width: 100%;
+}
+
+.input-with-button input {
+    flex: 1;
+}
+
+.btn-input-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem;
+    border-radius: 12px;
+    background: var(--glass);
+    border: 1px solid var(--border);
+    color: var(--text-main);
+    cursor: pointer;
+    transition: all 0.2s;
+    height: 42px;
+    width: 42px;
+    flex-shrink: 0;
+}
+
+.btn-input-action:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+}
+
+.btn-input-action:active {
+    transform: translateY(0);
+}
+
+/* Modal Overlay & Dialog Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(8px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    transition: opacity 0.3s ease;
+}
+
+.modal-content {
+    background: rgba(30, 41, 59, 0.95);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    width: 100%;
+    max-width: 440px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+    overflow: hidden;
+    animation: modalSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalSlideIn {
+    from {
+        transform: translateY(15px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.modal-header h3 {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: white;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--text-dim);
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.2s;
+}
+
+.close-btn:hover {
+    color: white;
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+/* QR Scanner Area */
+#qrReaderWrapper {
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 1.25rem;
+    position: relative;
+}
+
+#qr-reader {
+    width: 100%;
+    border: none !important;
+}
+
+#qr-reader__scan_region {
+    background: #0f172a;
+}
+
+#qr-reader__dashboard {
+    background: transparent !important;
+    padding: 10px 0 !important;
+    color: var(--text-dim) !important;
+}
+
+#qr-reader select, #qr-reader button {
+    background: var(--glass) !important;
+    border: 1px solid var(--border) !important;
+    color: white !important;
+    padding: 0.4rem 0.8rem !important;
+    border-radius: 8px !important;
+    cursor: pointer !important;
+}
+
+#qr-reader button:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* QR Status Cards */
+.qr-status-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.qr-status-card {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    border-radius: 16px;
+    align-items: flex-start;
+    animation: statusSlideUp 0.25s ease-out;
+}
+
+@keyframes statusSlideUp {
+    from {
+        transform: translateY(8px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.status-loading {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border);
+    justify-content: center;
+    align-items: center;
+    color: var(--text-dim);
+    font-size: 0.875rem;
+    padding: 1.25rem;
+}
+
+.status-found {
+    background: rgba(16, 185, 129, 0.12);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.status-found .status-icon {
+    background: rgba(16, 185, 129, 0.2);
+    color: var(--success);
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.status-found h4 {
+    color: #34d399;
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.status-not-found {
+    background: rgba(245, 158, 11, 0.12);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.status-not-found .status-icon {
+    background: rgba(245, 158, 11, 0.2);
+    color: var(--warning);
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.status-not-found h4 {
+    color: #fbbf24;
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.status-details {
+    flex: 1;
+}
+
+/* Map link in table list */
+.map-link {
+    transition: all 0.2s;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.map-link:hover {
+    color: var(--primary-dark) !important;
+    text-decoration: underline;
+}
+

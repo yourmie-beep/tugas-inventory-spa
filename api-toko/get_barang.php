@@ -14,21 +14,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 try {
     $pdo = get_pdo_connection();
     
-    // Ensure table exists
-    $pdo->exec("CREATE TABLE IF NOT EXISTS barang (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        nama VARCHAR(255) NOT NULL,
-        harga DECIMAL(10,2) NOT NULL,
-        stok INT NOT NULL,
-        deskripsi TEXT,
-        gambar VARCHAR(255) DEFAULT NULL
-    )");
-
-    // Migration: add column if database table was created in a previous session
-    try {
-        $pdo->exec("ALTER TABLE barang ADD COLUMN gambar VARCHAR(255) DEFAULT NULL");
-    } catch (PDOException $e) {
-        // Column may already exist, ignore error
+    // Check if searching by QR Code
+    $kode_qr = isset($_GET['kode_qr']) ? trim($_GET['kode_qr']) : '';
+    if ($kode_qr !== '') {
+        $stmt = $pdo->prepare("SELECT * FROM barang WHERE kode_qr = ?");
+        $stmt->execute([$kode_qr]);
+        $item = $stmt->fetch();
+        
+        echo json_encode([
+            'status' => 'success',
+            'data' => $item ? [$item] : [],
+            'message' => $item ? 'Barang ditemukan' : 'Barang tidak ditemukan'
+        ]);
+        exit;
     }
 
     // Search query
